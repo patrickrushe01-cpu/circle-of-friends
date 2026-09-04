@@ -28,7 +28,8 @@ all in place. Not yet wired up:
 - iOS platform project (`ios/`) and Android Gradle wrapper — run `flutter
   create .` in the project root to generate the standard platform
   boilerplate this scaffold builds on top of, then re-apply the
-  `AndroidManifest.xml` permissions and `MainActivity.kt` from this repo.
+  `AndroidManifest.xml` permissions and `MainActivity.kt` from this repo,
+  and merge in `ios/Info.plist.additions.md`'s keys.
 - This container has no Flutter/Android SDK or a device/emulator, so none
   of the above has been run or built here — do that locally first.
 

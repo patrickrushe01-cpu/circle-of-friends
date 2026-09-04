@@ -1,4 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:timezone/data/latest_all.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 /// Schedules the "catch up with anyone?" prompts described in DESIGN.md
 /// §8. Entirely local — there is no server, so this is plain OS-level
@@ -13,6 +16,10 @@ class NotificationService {
   static const _checkinNotificationId = 1001;
 
   Future<void> init() async {
+    tz_data.initializeTimeZones();
+    final deviceTimezone = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(deviceTimezone));
+
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings();
     await _plugin.initialize(
@@ -58,13 +65,10 @@ class NotificationService {
     }
   }
 
-  /// `zonedSchedule` needs a `TZDateTime`; the timezone package
-  /// initialization is expected to happen once at app start (see
-  /// `timezone` setup in a full implementation) — omitted here for
-  /// brevity, using local time as a placeholder.
-  DateTime _nextInstanceOf(int hour, int minute) {
-    final now = DateTime.now();
-    var scheduled = DateTime(now.year, now.month, now.day, hour, minute);
+  tz.TZDateTime _nextInstanceOf(int hour, int minute) {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }

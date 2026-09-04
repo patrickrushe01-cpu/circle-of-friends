@@ -32,6 +32,8 @@ dependencies:
 
   # local notifications for the check-in prompts
   flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+  flutter_timezone: ^1.0.8
 
   # permission requests (calendar, contacts; call/SMS handled natively on Android)
   permission_handler: ^11.3.1
