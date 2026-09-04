@@ -1,0 +1,52 @@
+name: circle_of_friends
+description: >
+  Circle of Friends — visualizes your ten closest relationships as a
+  radar screen, driven by real interaction frequency. Fully on-device.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # local, on-device database — no server sync
+  isar: ^3.1.0
+  isar_flutter_libs: ^3.1.0
+  path_provider: ^2.1.4
+  shared_preferences: ^2.3.2
+
+  # contact picker for onboarding
+  flutter_contacts: ^1.1.9
+
+  # cross-platform calendar access (calendar meetings signal)
+  device_calendar: ^4.3.2
+
+  # local notifications for the check-in prompts
+  flutter_local_notifications: ^17.2.3
+
+  # permission requests (calendar, contacts; call/SMS handled natively on Android)
+  permission_handler: ^11.3.1
+
+  # hourly background recompute
+  workmanager: ^0.5.2
+
+  # state management
+  flutter_riverpod: ^2.5.1
+
+  # value equality for models
+  equatable: ^2.0.5
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  isar_generator: ^3.1.0
+  build_runner: ^2.4.11
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
