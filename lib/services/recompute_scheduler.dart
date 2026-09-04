@@ -1,7 +1,7 @@
 import 'package:workmanager/workmanager.dart';
 
 import '../database/app_database.dart';
-import '../platform/android_interaction_collector.dart';
+import 'interaction_sync.dart';
 import 'scoring_service.dart';
 
 const hourlyRecomputeTask = 'hourly_recompute';
@@ -34,7 +34,7 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     if (task == hourlyRecomputeTask) {
       final database = await AppDatabase.open();
-      await AndroidInteractionCollector(database).syncSinceLastRun();
+      await InteractionSync(database).syncAll();
       await ScoringService(database).recomputeTick();
     }
     return Future.value(true);

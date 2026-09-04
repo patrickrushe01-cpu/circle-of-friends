@@ -33,7 +33,10 @@ class _ContactPickerStepState extends State<ContactPickerStep> {
       setState(() => _loading = false);
       return;
     }
-    final contacts = await FlutterContacts.getContacts(withPhoto: true);
+    final contacts = await FlutterContacts.getContacts(
+      withPhoto: true,
+      withProperties: true,
+    );
     contacts.sort((a, b) => a.displayName.compareTo(b.displayName));
     setState(() {
       _allContacts = contacts;

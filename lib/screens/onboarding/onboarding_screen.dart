@@ -37,6 +37,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ..deviceContactId = contact.id
           ..name = contact.displayName
           ..avatarRef = null
+          ..phoneNumbers = contact.phones.map((p) => p.number).toList()
+          ..emailAddresses = contact.emails.map((e) => e.address).toList()
           ..dateAdded = DateTime.now(),
       );
     }

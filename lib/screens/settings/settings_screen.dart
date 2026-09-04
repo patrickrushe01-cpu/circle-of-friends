@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../database/app_database.dart';
 import '../../models/contact.dart';
+import '../../platform/email/gmail_email_provider.dart';
 import '../../services/permission_service.dart';
 
 /// Manage the tracked ten and review permissions, per DESIGN.md §8.
@@ -43,6 +44,9 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
           const _SectionHeader('Permissions'),
           const _PermissionsList(),
+          const Divider(),
+          const _SectionHeader('Email'),
+          const _EmailConnectionTile(),
           const Divider(),
           const _SectionHeader('Data'),
           ListTile(
@@ -102,6 +106,8 @@ class SettingsScreen extends ConsumerWidget {
       newContact: Contact()
         ..deviceContactId = replacement.id
         ..name = replacement.displayName
+        ..phoneNumbers = replacement.phones.map((p) => p.number).toList()
+        ..emailAddresses = replacement.emails.map((e) => e.address).toList()
         ..dateAdded = DateTime.now(),
     );
   }
@@ -113,7 +119,7 @@ class _ReplacementPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<fc.Contact>>(
-      future: fc.FlutterContacts.getContacts(),
+      future: fc.FlutterContacts.getContacts(withProperties: true),
       builder: (context, snapshot) {
         final contacts = snapshot.data ?? const <fc.Contact>[];
         return ListView.builder(
@@ -188,6 +194,62 @@ class _PermissionsListState extends State<_PermissionsList> {
       case TrackedPermission.sms:
         return 'SMS (Android)';
     }
+  }
+}
+
+/// Lets the user connect Gmail so email frequency counts toward scoring,
+/// per DESIGN.md §2/§6. Optional — the app works without it, just with
+/// one fewer signal (see [EmailCollector]'s silent no-op when
+/// disconnected).
+class _EmailConnectionTile extends StatefulWidget {
+  const _EmailConnectionTile();
+
+  @override
+  State<_EmailConnectionTile> createState() => _EmailConnectionTileState();
+}
+
+class _EmailConnectionTileState extends State<_EmailConnectionTile> {
+  final _provider = GmailEmailProvider();
+  bool? _connected;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Future<void> _refresh() async {
+    final connected = await _provider.isConnected();
+    if (mounted) setState(() => _connected = connected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_connected == null) {
+      return const ListTile(title: Text('Checking email connection…'));
+    }
+    return ListTile(
+      title: const Text('Gmail'),
+      subtitle: Text(_connected!
+          ? 'Connected — message frequency counts toward staying in touch.'
+          : 'Not connected. Only frequency and timestamps are read, never '
+              'subjects or content.'),
+      trailing: _connected!
+          ? TextButton(
+              onPressed: () async {
+                await _provider.disconnect();
+                _refresh();
+              },
+              child: const Text('Disconnect'),
+            )
+          : FilledButton(
+              onPressed: () async {
+                await _provider.connect();
+                _refresh();
+              },
+              child: const Text('Connect'),
+            ),
+    );
   }
 }
 

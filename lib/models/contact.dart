@@ -20,6 +20,13 @@ class Contact {
   /// not every contact has a photo.
   String? avatarRef;
 
+  /// Captured at add-time from the address book entry. Used to match this
+  /// contact against call/SMS log rows (Android), calendar attendees, and
+  /// email correspondents (both platforms) — none of those sources key on
+  /// [deviceContactId], so the raw values are needed for matching.
+  List<String> phoneNumbers = [];
+  List<String> emailAddresses = [];
+
   late DateTime dateAdded;
 
   /// False once swapped out via Settings. Kept for historical trend data.

@@ -34,8 +34,9 @@ class AndroidInteractionCollector {
     final since = DateTime.now().subtract(const Duration(days: 14));
 
     for (final contact in contacts) {
+      if (contact.phoneNumbers.isEmpty) continue;
       final events = await _channel.fetchEventsSince(
-        phoneNumbers: [contact.deviceContactId],
+        phoneNumbers: contact.phoneNumbers,
         since: since,
       );
       for (final event in events) {

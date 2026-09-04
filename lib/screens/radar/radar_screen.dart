@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../database/app_database.dart';
+import '../../services/interaction_sync.dart';
 import '../../services/scoring_service.dart';
 import '../checkin/checkin_modal.dart';
 import '../settings/settings_screen.dart';
@@ -29,6 +30,7 @@ class _RadarScreenState extends ConsumerState<RadarScreen> {
 
   Future<void> _refresh() async {
     final database = ref.read(appDatabaseProvider);
+    await InteractionSync(database).syncAll();
     await ScoringService(database).recomputeTick();
     setState(() => _lastUpdated = DateTime.now());
   }

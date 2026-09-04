@@ -11,11 +11,16 @@ algorithm, screen-by-screen UX, and phased build plan.
 
 ## Status
 
-Phase 1 scaffold: project structure, data layer, scoring engine, all four
-screens (onboarding, radar, check-in, settings), and the Android native
-call/SMS module are in place. Not yet wired up:
+Phase 1–3 scaffold: project structure, data layer, scoring engine, all
+four screens (onboarding, radar, check-in, settings), the Android native
+call/SMS module, and the cross-platform calendar + email collectors are
+all in place. Not yet wired up:
 
-- Calendar (`device_calendar`) and email frequency collectors (Phase 2).
+- **Gmail OAuth client**: `GmailEmailProvider` needs a real OAuth client
+  ID registered in Google Cloud Console (with the `gmail.metadata` scope
+  enabled) before "Connect" in Settings will do anything — see DESIGN.md
+  §11. Only an IMAP-generic provider is left as future work; Gmail is the
+  only concrete `EmailProvider` today.
 - `flutter_local_notifications` timezone-aware scheduling (currently uses
   local `DateTime` as a placeholder — see `notification_service.dart`).
 - Generated Isar (`*.g.dart`) files — run `flutter pub get && dart run
@@ -24,6 +29,8 @@ call/SMS module are in place. Not yet wired up:
   create .` in the project root to generate the standard platform
   boilerplate this scaffold builds on top of, then re-apply the
   `AndroidManifest.xml` permissions and `MainActivity.kt` from this repo.
+- This container has no Flutter/Android SDK or a device/emulator, so none
+  of the above has been run or built here — do that locally first.
 
 ## Getting started
 

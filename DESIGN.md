@@ -93,8 +93,15 @@ enormously — nothing about who you call or when ever leaves the phone.
 | deviceContactId | String | stable link back to the OS address book entry |
 | name | String | display name, cached at add-time |
 | avatarRef | String? | cached avatar path/bytes reference |
+| phoneNumbers | List\<String\> | cached at add-time; matches call/SMS log rows (Android) |
+| emailAddresses | List\<String\> | cached at add-time; matches calendar attendees and email correspondents |
 | dateAdded | DateTime | when it entered the tracked ten |
 | active | bool | false if removed from the ten (soft-delete, keeps history) |
+
+`deviceContactId` alone can't drive matching against any of the collected
+signals — content providers, calendar attendees, and email headers all key
+on the raw phone number or email address, not the OS's internal contact
+id — so those are captured too, at add-time, from the address book entry.
 
 ### `interactions`
 | field | type | notes |
@@ -249,5 +256,9 @@ send/receive counts only, never body content.
   Android testing is free.
 - Claude Code (or equivalent) subscription to generate/maintain the Flutter
   and Kotlin code from this brief.
-- OAuth app registrations for email access (Google/Microsoft) — needed
-  before Phase 2 email integration can be tested end-to-end.
+- **Google Cloud OAuth client** (Gmail API, `gmail.metadata` scope) —
+  free, but required before `GmailEmailProvider`'s "Connect" flow in
+  Settings can authenticate for real. Register at
+  console.cloud.google.com, enable the Gmail API, create an OAuth client
+  for the app's package/bundle id, and configure it for `google_sign_in`
+  per that plugin's platform setup docs.
