@@ -19,7 +19,13 @@ dependencies:
   shared_preferences: ^2.3.2
 
   # contact picker for onboarding
-  flutter_contacts: ^1.1.9
+  #
+  # Pinned to 2.x, not the 1.1.9 originally scaffolded here: that version
+  # predates Flutter's scene-based app lifecycle (the AppDelegate +
+  # SceneDelegate split current `flutter create .` generates) and crashes
+  # at plugin-registration time on iOS with "Fatal error: Unexpectedly
+  # found nil while unwrapping an Optional value" before any app code runs.
+  flutter_contacts: ^2.5.0
 
   # cross-platform calendar access (calendar meetings signal)
   device_calendar: ^4.3.2
