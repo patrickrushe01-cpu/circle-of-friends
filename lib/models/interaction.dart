@@ -23,7 +23,10 @@ class Interaction {
   @enumerated
   late InteractionSource source;
 
-  @enumerated
+  // Isar's default `@enumerated` (EnumType.ordinal) stores a single
+  // non-nullable byte, which doesn't support null — this field needs
+  // ordinal32 (a nullable int) since only manual check-ins set it.
+  @Enumerated(EnumType.ordinal32)
   ManualInteractionType? manualType;
 
   /// Calls and calendar meetings only; null otherwise.
