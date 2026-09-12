@@ -61,6 +61,11 @@ class NotificationService {
         ),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
+        // Our TZDateTime is already an absolute instant computed against
+        // tz.local (see _nextInstanceOf) rather than a wall-clock time to
+        // reinterpret at fire-time, so absoluteTime is the correct mode.
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
       );
     }
   }
