@@ -28,28 +28,40 @@ class _ContactPickerStepState extends State<ContactPickerStep> {
   }
 
   Future<void> _loadContacts() async {
-    final granted = await FlutterContacts.requestPermission();
+    final status = await FlutterContacts.permissions.request(
+      PermissionType.read,
+    );
+    final granted =
+        status == PermissionStatus.granted || status == PermissionStatus.limited;
     if (!granted) {
       setState(() => _loading = false);
       return;
     }
-    final contacts = await FlutterContacts.getContacts(
-      withPhoto: true,
-      withProperties: true,
+    final contacts = await FlutterContacts.getAll(
+      properties: {
+        ContactProperty.phone,
+        ContactProperty.email,
+        ContactProperty.photoThumbnail,
+      },
     );
-    contacts.sort((a, b) => a.displayName.compareTo(b.displayName));
+    // id/displayName are nullable in this API but every real address-book
+    // entry has both; drop anything that doesn't rather than thread
+    // nullability through the whole selection flow.
+    final usable = contacts.where((c) => c.id != null).toList()
+      ..sort((a, b) => (a.displayName ?? '').compareTo(b.displayName ?? ''));
     setState(() {
-      _allContacts = contacts;
+      _allContacts = usable;
       _loading = false;
     });
   }
 
   void _toggle(Contact contact) {
+    final id = contact.id!;
     setState(() {
-      if (_selectedIds.contains(contact.id)) {
-        _selectedIds.remove(contact.id);
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
       } else if (_selectedIds.length < trackedCount) {
-        _selectedIds.add(contact.id);
+        _selectedIds.add(id);
       }
     });
   }
@@ -76,22 +88,21 @@ class _ContactPickerStepState extends State<ContactPickerStep> {
             itemCount: _allContacts.length,
             itemBuilder: (context, index) {
               final contact = _allContacts[index];
+              final name = contact.displayName ?? '';
               final selected = _selectedIds.contains(contact.id);
               final disabled = !selected && atCapacity;
+              final thumbnail = contact.photo?.thumbnail;
               return Opacity(
                 opacity: disabled ? 0.4 : 1.0,
                 child: CheckboxListTile(
                   value: selected,
                   onChanged: disabled ? null : (_) => _toggle(contact),
-                  title: Text(contact.displayName),
+                  title: Text(name),
                   secondary: CircleAvatar(
-                    backgroundImage: contact.photo != null
-                        ? MemoryImage(contact.photo!)
-                        : null,
-                    child: contact.photo == null
-                        ? Text(contact.displayName.isNotEmpty
-                            ? contact.displayName[0]
-                            : '?')
+                    backgroundImage:
+                        thumbnail != null ? MemoryImage(thumbnail) : null,
+                    child: thumbnail == null
+                        ? Text(name.isNotEmpty ? name[0] : '?')
                         : null,
                   ),
                 ),

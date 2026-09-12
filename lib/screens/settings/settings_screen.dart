@@ -91,7 +91,10 @@ class SettingsScreen extends ConsumerWidget {
     );
     if (confirmed != true || !context.mounted) return;
 
-    final granted = await fc.FlutterContacts.requestPermission();
+    final status =
+        await fc.FlutterContacts.permissions.request(fc.PermissionType.read);
+    final granted = status == fc.PermissionStatus.granted ||
+        status == fc.PermissionStatus.limited;
     if (!granted || !context.mounted) return;
 
     final replacement = await showModalBottomSheet<fc.Contact>(
@@ -104,8 +107,9 @@ class SettingsScreen extends ConsumerWidget {
     await database.swapContact(
       oldContactId: outgoing.id,
       newContact: Contact()
-        ..deviceContactId = replacement.id
-        ..name = replacement.displayName
+        // _ReplacementPicker only ever hands back contacts with a real id.
+        ..deviceContactId = replacement.id!
+        ..name = replacement.displayName ?? ''
         ..phoneNumbers = replacement.phones.map((p) => p.number).toList()
         ..emailAddresses = replacement.emails.map((e) => e.address).toList()
         ..dateAdded = DateTime.now(),
@@ -119,18 +123,21 @@ class _ReplacementPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<fc.Contact>>(
-      future: fc.FlutterContacts.getContacts(withProperties: true),
+      future: fc.FlutterContacts.getAll(
+        properties: {fc.ContactProperty.phone, fc.ContactProperty.email},
+      ),
       builder: (context, snapshot) {
-        final contacts = snapshot.data ?? const <fc.Contact>[];
-        return ListView.builder(
-          itemCount: contacts.length,
-          itemBuilder: (context, index) {
-            final contact = contacts[index];
-            return ListTile(
-              title: Text(contact.displayName),
-              onTap: () => Navigator.pop(context, contact),
-            );
-          },
+        final contacts =
+            (snapshot.data ?? const <fc.Contact>[]).where((c) => c.id != null);
+        return ListView(
+          children: contacts
+              .map(
+                (contact) => ListTile(
+                  title: Text(contact.displayName ?? ''),
+                  onTap: () => Navigator.pop(context, contact),
+                ),
+              )
+              .toList(),
         );
       },
     );

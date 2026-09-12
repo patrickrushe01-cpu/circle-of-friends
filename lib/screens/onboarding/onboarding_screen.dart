@@ -34,8 +34,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     for (final contact in _selected) {
       await database.addContact(
         Contact()
-          ..deviceContactId = contact.id
-          ..name = contact.displayName
+          // ContactPickerStep only ever hands us contacts with a real id
+          // (it filters null ids before selection is possible).
+          ..deviceContactId = contact.id!
+          ..name = contact.displayName ?? ''
           ..avatarRef = null
           ..phoneNumbers = contact.phones.map((p) => p.number).toList()
           ..emailAddresses = contact.emails.map((e) => e.address).toList()
